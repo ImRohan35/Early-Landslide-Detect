@@ -1,0 +1,148 @@
+{
+  "model_name": "Random Forest Classifier",
+  "algorithm": "RandomForestClassifier (scikit-learn)",
+  "framework": "Scikit-Learn",
+  "n_estimators": 150,
+  "classes": [
+    "Low",
+    "Moderate",
+    "High",
+    "Critical"
+  ],
+  "features": [
+    "latitude",
+    "longitude",
+    "rainfall",
+    "soil_moisture",
+    "slope",
+    "elevation",
+    "ndvi",
+    "distance_to_river",
+    "historical_landslide"
+  ],
+  "accuracy": 0.95,
+  "precision": 0.95,
+  "recall": 0.95,
+  "f1_score": 0.95,
+  "confusion_matrix": [
+    [
+      10,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      10,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      9,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      9
+    ]
+  ],
+  "labels": [
+    "Low",
+    "Moderate",
+    "High",
+    "Critical"
+  ],
+  "feature_importances": [
+    {
+      "feature": "rainfall",
+      "importance": 0.2768,
+      "percentage": 27.68
+    },
+    {
+      "feature": "slope",
+      "importance": 0.2155,
+      "percentage": 21.55
+    },
+    {
+      "feature": "soil_moisture",
+      "importance": 0.184,
+      "percentage": 18.4
+    },
+    {
+      "feature": "historical_landslide",
+      "importance": 0.1337,
+      "percentage": 13.37
+    },
+    {
+      "feature": "distance_to_river",
+      "importance": 0.1187,
+      "percentage": 11.87
+    },
+    {
+      "feature": "ndvi",
+      "importance": 0.043,
+      "percentage": 4.3
+    },
+    {
+      "feature": "elevation",
+      "importance": 0.0117,
+      "percentage": 1.17
+    },
+    {
+      "feature": "longitude",
+      "importance": 0.009,
+      "percentage": 0.9
+    },
+    {
+      "feature": "latitude",
+      "importance": 0.0078,
+      "percentage": 0.78
+    }
+  ],
+  "train_samples": 120,
+  "test_samples": 40,
+  "total_dataset_records": 160,
+  "classification_report": {
+    "Low": {
+      "precision": 0.9090909090909091,
+      "recall": 0.9090909090909091,
+      "f1-score": 0.9090909090909091,
+      "support": 11.0
+    },
+    "Moderate": {
+      "precision": 0.9090909090909091,
+      "recall": 0.9090909090909091,
+      "f1-score": 0.9090909090909091,
+      "support": 11.0
+    },
+    "High": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 9.0
+    },
+    "Critical": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 9.0
+    },
+    "accuracy": 0.95,
+    "macro avg": {
+      "precision": 0.9545454545454546,
+      "recall": 0.9545454545454546,
+      "f1-score": 0.9545454545454546,
+      "support": 40.0
+    },
+    "weighted avg": {
+      "precision": 0.95,
+      "recall": 0.95,
+      "f1-score": 0.95,
+      "support": 40.0
+    }
+  }
+}

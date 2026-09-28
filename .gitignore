@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.venv/
+venv/
+backend/.venv/
+
+# Environment Variables & Secrets
+.env
+backend/.env
+
+# Build outputs
+dist/
+frontend/dist/
+build/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+catboost_info/
+
+# OS specific
+.DS_Store
+Thumbs.db
