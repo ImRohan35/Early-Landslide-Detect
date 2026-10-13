@@ -163,6 +163,19 @@ export default function RiskAnalysisPage({
 
   const riskScore = currentLoc.id === 'shillong' ? 68 : assessment.riskScore;
   const riskLevel = currentLoc.id === 'shillong' ? 'High' : assessment.riskLevel;
+  const currentRiskColor =
+    riskScore <= 25 ? '#10b981' :
+    riskScore <= 50 ? '#f59e0b' :
+    riskScore <= 75 ? '#ea580c' : '#ef4444';
+
+  const currentRiskText =
+    riskScore <= 25
+      ? 'Current environmental conditions indicate a low and safe landslide risk in this region.'
+      : riskScore <= 50
+      ? 'Current conditions indicate moderate localized risk. Normal slope stability observed.'
+      : riskScore <= 75
+      ? 'Current environmental conditions indicate an elevated landslide risk in this region.'
+      : 'Critical hazard: High slope instability and heavy moisture detected in this region.';
 
   // Fetch real 7-day operational meteorological forecast from Open-Meteo
   useEffect(() => {
@@ -712,7 +725,7 @@ export default function RiskAnalysisPage({
                   cx="85"
                   cy="85"
                   r={radius}
-                  stroke="#ef4444"
+                  stroke={currentRiskColor}
                   strokeWidth="14"
                   fill="transparent"
                   strokeDasharray={circumference}
@@ -737,7 +750,7 @@ export default function RiskAnalysisPage({
                   style={{
                     fontSize: '2.4rem',
                     fontWeight: 800,
-                    color: '#ef4444',
+                    color: currentRiskColor,
                     lineHeight: 1,
                     fontFamily: "'Outfit', sans-serif",
                   }}
@@ -756,18 +769,18 @@ export default function RiskAnalysisPage({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
-                color: '#ef4444',
+                color: currentRiskColor,
                 fontWeight: 800,
                 fontSize: '1rem',
                 margin: '4px 0 8px',
               }}
             >
-              <TrendingUp size={16} color="#ef4444" />
+              <TrendingUp size={16} color={currentRiskColor} />
               <span>{riskLevel} Risk</span>
             </div>
 
             <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0, lineHeight: 1.45, maxWidth: 240 }}>
-              Current environmental conditions indicate an elevated landslide risk in this region.
+              {currentRiskText}
             </p>
           </div>
 
@@ -788,12 +801,42 @@ export default function RiskAnalysisPage({
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
               {[
-                { name: 'Rainfall', value: `${rainfallVal} mm`, pct: 85, color: '#ef4444' },
-                { name: 'Soil Moisture', value: `${soilMoistureVal}%`, pct: 70, color: '#f97316' },
-                { name: 'Slope', value: `${slopeVal}°`, pct: 60, color: '#f59e0b' },
-                { name: 'Elevation', value: `${elevationVal.toLocaleString()} m`, pct: 30, color: '#06b6d4' },
-                { name: 'NDVI', value: `${ndviVal}`, pct: 25, color: '#10b981' },
-                { name: 'Historical Activity', value: 'High', pct: 65, color: '#ef4444' },
+                {
+                  name: 'Rainfall',
+                  value: `${rainfallVal} mm`,
+                  pct: Math.min(100, Math.round((rainfallVal / 120) * 100)),
+                  color: rainfallVal > 60 ? '#ef4444' : rainfallVal > 20 ? '#f59e0b' : '#10b981',
+                },
+                {
+                  name: 'Soil Moisture',
+                  value: `${soilMoistureVal}%`,
+                  pct: Math.min(100, Math.round(soilMoistureVal)),
+                  color: soilMoistureVal > 75 ? '#ef4444' : soilMoistureVal > 55 ? '#f59e0b' : '#10b981',
+                },
+                {
+                  name: 'Slope',
+                  value: `${slopeVal}°`,
+                  pct: Math.min(100, Math.round((slopeVal / 45) * 100)),
+                  color: slopeVal > 25 ? '#ef4444' : slopeVal > 15 ? '#f59e0b' : '#10b981',
+                },
+                {
+                  name: 'Elevation',
+                  value: `${elevationVal.toLocaleString()} m`,
+                  pct: Math.min(100, Math.round((elevationVal / 2500) * 100)),
+                  color: '#06b6d4',
+                },
+                {
+                  name: 'NDVI (Vegetation)',
+                  value: `${ndviVal}`,
+                  pct: Math.min(100, Math.round(ndviVal * 100)),
+                  color: '#10b981',
+                },
+                {
+                  name: 'Historical Activity',
+                  value: (currentLoc.historicalLandslides || 0) > 0 ? 'Documented (Elevated)' : 'None',
+                  pct: (currentLoc.historicalLandslides || 0) > 0 ? 65 : 15,
+                  color: (currentLoc.historicalLandslides || 0) > 0 ? '#f59e0b' : '#10b981',
+                },
               ].map((factor, i) => (
                 <div key={i}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: 4 }}>
@@ -811,7 +854,7 @@ export default function RiskAnalysisPage({
                   >
                     <div
                       style={{
-                        width: `${factor.pct}%`,
+                        width: `${Math.max(5, factor.pct)}%`,
                         height: '100%',
                         background: factor.color,
                         borderRadius: 9999,

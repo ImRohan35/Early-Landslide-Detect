@@ -814,7 +814,7 @@ export default function Map({
               selectedState={selectedState}
               resetTrigger={resetCount}
               userLocation={userCoords}
-              flyToTrigger={flyCount}
+               flyToTrigger={flyCount}
               isFullscreen={isFullscreen}
             />
 

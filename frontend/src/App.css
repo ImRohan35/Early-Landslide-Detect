@@ -1425,4 +1425,17 @@ button {
   .dashboard-sidebar > div:last-child {
     display: none !important;
   }
+
+  #auth-fullscreen-container {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+  #auth-fullscreen-container > div:first-child {
+    display: none !important;
+  }
+  #auth-form-side {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    padding: 24px 20px !important;
+  }
 }

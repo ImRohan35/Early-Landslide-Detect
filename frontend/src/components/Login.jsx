@@ -15,10 +15,11 @@ import {
   Activity,
   Compass,
   Check,
+  X,
 } from 'lucide-react';
 import { loginApi, signUpApi } from '../services/api';
 
-export default function Login({ onLogin, onBackToHome, initialMode = 'login' }) {
+export default function Login({ onLogin, onBackToHome, initialMode = 'login', onClose }) {
   const [isSignup, setIsSignup] = useState(initialMode === 'signup');
 
   // Login states
@@ -350,31 +351,62 @@ export default function Login({ onLogin, onBackToHome, initialMode = 'login' }) 
       >
         {/* Inner Centered Form Container */}
         <div style={{ width: '100%', maxWidth: 440, margin: 'auto 0' }}>
-          {/* Back to Home button */}
-          <button
-            type="button"
-            onClick={onBackToHome}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#475569',
-              cursor: 'pointer',
-              padding: '2px 0',
-              marginBottom: 14,
-              transition: 'color 0.2s',
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.color = '#0d2818')}
-            onMouseOut={(e) => (e.currentTarget.style.color = '#475569')}
-            id="auth-back-to-home-btn"
-          >
-            <ArrowLeft size={15} />
-            <span>Back to home</span>
-          </button>
+          {/* Back & Close Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <button
+              type="button"
+              onClick={onClose || onBackToHome}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#475569',
+                cursor: 'pointer',
+                padding: '2px 0',
+                transition: 'color 0.2s',
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.color = '#0d2818')}
+              onMouseOut={(e) => (e.currentTarget.style.color = '#475569')}
+              id="auth-back-to-home-btn"
+            >
+              <ArrowLeft size={15} />
+              <span>Back to Dashboard</span>
+            </button>
+            {(onClose || onBackToHome) && (
+              <button
+                type="button"
+                onClick={onClose || onBackToHome}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '50%',
+                  width: 32,
+                  height: 32,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#64748b',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = '#f1f5f9';
+                  e.currentTarget.style.color = '#0f172a';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#64748b';
+                }}
+                title="Close"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
 
           {/* Form Header */}
           <div style={{ marginBottom: 16 }}>

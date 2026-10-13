@@ -291,24 +291,20 @@ export default function App() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
             zIndex: 10000,
+            background: '#ffffff',
+            width: '100vw',
+            height: '100vh',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
+            overflow: 'hidden',
           }}
         >
-          <div style={{ maxWidth: 440, width: '100%', position: 'relative' }}>
-            <Login
-              onLogin={handleLogin}
-              onBackToHome={() => {
-                setShowLoginModal(false);
-                setActivePage('Home');
-              }}
-              initialMode="login"
-            />
-          </div>
+          <Login
+            onLogin={handleLogin}
+            onBackToHome={() => setShowLoginModal(false)}
+            onClose={() => setShowLoginModal(false)}
+            initialMode="login"
+          />
         </div>
       )}
     </div>
