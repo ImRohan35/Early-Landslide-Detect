@@ -9,7 +9,6 @@ import AboutPage from './components/AboutPage';
 import WhatIfSimulator from './components/WhatIfSimulator';
 import HistoricalAnalysisView from './components/HistoricalAnalysisView';
 import ReportsView from './components/ReportsView';
-import IncidentReportsView from './components/IncidentReportsView';
 import SettingsView from './components/SettingsView';
 import Login from './components/Login';
 import HillGuardChat from './components/HillGuardChat';
@@ -58,7 +57,7 @@ export default function App() {
     }
   });
 
-  // Active page route: 'Historical Data' | 'Reports' | 'Map' | 'Analysis' | 'Alerts' | 'What-If Simulator' | 'Community' | 'Settings' | 'About' | 'Home'
+  // Active page route: 'Historical Data' | 'Reports' | 'Map' | 'Analysis' | 'Alerts' | 'What-If Simulator' | 'Settings' | 'About' | 'Home'
   const [activePage, setActivePage] = useState('Historical Data');
 
   // Currently inspected station across Map & Analysis
@@ -105,14 +104,16 @@ export default function App() {
     localStorage.setItem('nelrms-user', JSON.stringify(formatted));
     setUser(formatted);
     setShowLoginModal(false);
+    setActivePage('Map');
     showToast(`Signed in as ${formatted.name || 'Rohan Singh'}`, 'success');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('nelrms-user');
     setUser(null);
-    setShowLoginModal(true);
-    showToast('Signed out successfully. Please sign in to continue.', 'info');
+    setShowLoginModal(false);
+    setActivePage('Home');
+    showToast('Signed out successfully. Redirected to welcome portal.', 'info');
   };
 
   const handleStateSelect = (st) => {
@@ -227,20 +228,13 @@ export default function App() {
                 />
               )}
 
-              {(activePage.toLowerCase() === 'community' || activePage.toLowerCase() === 'incident reports') && (
-                <IncidentReportsView
-                  theme={theme}
-                  onNavigate={handleNavigate}
-                  onToast={showToast}
-                />
-              )}
-
               {activePage.toLowerCase() === 'settings' && (
                 <SettingsView
                   theme={theme}
                   onToggleTheme={toggleTheme}
                   onLogout={handleLogout}
                   showToast={showToast}
+                  onNavigateToProfile={() => showToast(`User Profile: ${user?.name || 'Rohan Singh'} (${user?.role || 'Student'})`, 'info')}
                 />
               )}
 

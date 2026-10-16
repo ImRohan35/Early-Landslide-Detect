@@ -29,7 +29,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { riskLocations, riskColors, calculateGeomorphicRisk } from '../data/riskLocations';
+import { riskLocations, riskColors, calculateGeomorphicRisk, getRiskLevelFromScore } from '../data/riskLocations';
 import { fetchLiveWeather, fetch7DayRiskForecast, formatISTDate, formatISTTime } from '../services/weather';
 import PredictiveRiskTimeline from './PredictiveRiskTimeline';
 
@@ -161,8 +161,10 @@ export default function RiskAnalysisPage({
     });
   }, [rainfallVal, slopeVal, soilMoistureVal, currentLoc.historicalLandslides, ndviVal, elevationVal]);
 
-  const riskScore = currentLoc.id === 'shillong' ? 68 : assessment.riskScore;
-  const riskLevel = currentLoc.id === 'shillong' ? 'High' : assessment.riskLevel;
+  const riskScore = (live7DayForecast && live7DayForecast.length > 0 && live7DayForecast[0]?.score !== undefined)
+    ? live7DayForecast[0].score
+    : assessment.riskScore;
+  const riskLevel = getRiskLevelFromScore(riskScore);
   const currentRiskColor =
     riskScore <= 25 ? '#10b981' :
     riskScore <= 50 ? '#f59e0b' :
@@ -205,9 +207,9 @@ export default function RiskAnalysisPage({
     }
     const dates = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'];
     const baseRisk = riskScore;
-    const curveOffsets = [-12, -4, +3, +10, baseRisk === 68 ? 10 : 6, +2, -5];
+    const curveOffsets = [-12, -4, +3, +10, 6, +2, -5];
     return dates.map((d, i) => {
-      const val = Math.max(15, Math.min(96, (baseRisk === 68 ? 68 : baseRisk) + curveOffsets[i]));
+      const val = Math.max(15, Math.min(96, baseRisk + curveOffsets[i]));
       return {
         date: d,
         risk: val,

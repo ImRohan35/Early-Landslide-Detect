@@ -24,7 +24,6 @@ import {
   RotateCcw,
   Sparkles,
   TriangleAlert,
-  Box,
   ChevronUp,
   ChevronDown,
   ChevronLeft,
@@ -32,7 +31,6 @@ import {
   Plus,
   Minus,
 } from 'lucide-react';
-import ThreeDMap from './ThreeDMap';
 import { riskColors, riskLocations } from '../data/riskLocations';
 import { nerInfrastructureCorridors, nerStateBoundaries, nerEvacuationRoutes } from '../data/nerGeoJSON';
 import { historicalLandslides } from '../data/historicalLandslides';
@@ -484,7 +482,6 @@ export default function Map({
   mapType = 'satellite',
   selectedState = 'All States',
 }) {
-  const [viewMode, setViewMode] = useState('2d'); // Default to 2D Satellite Map
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [layersOpen, setLayersOpen] = useState(false);
   const [resetCount, setResetCount] = useState(0);
@@ -600,34 +597,6 @@ export default function Map({
           <span>GIS Risk Surveillance &middot; North East India (NER)</span>
         </div>
         <div className="map-controls-toolbar">
-          {/* 2D / 3D Mode Toggle Switcher */}
-          <div className="map-view-switcher">
-            <button
-              type="button"
-              className={`map-view-switch-btn ${viewMode === '3d' ? 'active' : ''}`}
-              onClick={() => {
-                setViewMode('3d');
-                if (onToast) onToast('Activated 3D Mountain Elevation & Terrain Grid', 'success');
-              }}
-              title="Switch to 3D Topographic Terrain View"
-            >
-              <Box size={13} />
-              <span>3D Terrain</span>
-            </button>
-            <button
-              type="button"
-              className={`map-view-switch-btn ${viewMode === '2d' ? 'active' : ''}`}
-              onClick={() => {
-                setViewMode('2d');
-                if (onToast) onToast('Switched to 2D Planimetric Cartography Map');
-              }}
-              title="Switch to 2D Cartography View"
-            >
-              <Layers size={13} />
-              <span>2D Map</span>
-            </button>
-          </div>
-
           <button
             className="map-toolbar-btn"
             onClick={handleResetView}
@@ -764,14 +733,8 @@ export default function Map({
         </div>
       </div>
 
-      {viewMode === '3d' ? (
-        <ThreeDMap
-          selectedLocation={selectedLocation}
-          onLocationSelect={onLocationSelect}
-        />
-      ) : (
-        <div className="map-canvas" style={{ flex: 1, width: '100%', height: '100%', minHeight: '520px', position: 'relative' }}>
-          <MapContainer
+      <div className="map-canvas" style={{ flex: 1, width: '100%', height: '100%', minHeight: '520px', position: 'relative' }}>
+        <MapContainer
             center={NER_CENTER}
             zoom={NER_DEFAULT_ZOOM}
             minZoom={2}
@@ -820,8 +783,6 @@ export default function Map({
 
             {/* Comprehensive Easy Pan (Up, Down, Left, Right) & Zoom In / Zoom Out (Less) D-Pad Controller */}
             <MapNavigationWidget />
-
-            <MapLegend visibleLayers={layers} />
 
           {/* USER DETECTED CURRENT LOCATION MARKER */}
           {userCoords && (
@@ -1210,7 +1171,6 @@ export default function Map({
           </div>
         )}
       </div>
-      )}
     </section>
   );
 }

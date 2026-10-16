@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import { riskLocations } from '../data/riskLocations';
 
-export default function HillGuardChat({ selectedLocation }) {
-  const loc = selectedLocation || riskLocations[0];
+export default function HillGuardChat({ selectedLocation, currentLocation, theme, onNavigate }) {
+  const loc = currentLocation || selectedLocation || riskLocations[0];
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {

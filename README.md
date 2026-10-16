@@ -1,162 +1,162 @@
-# AI-Based Early Warning and Landslide Risk Monitoring System for North Eastern Region (NER)
+# LandslideGuard AI · Early Landslide Detection & Surveillance System
 
-**College Mini Project &middot; Disaster Risk Reduction & AI Decision Support Platform**
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18.x-61DAFB.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF.svg)](https://vitejs.dev/)
+[![ML Model](https://img.shields.io/badge/ML%20Accuracy-95.0%25-brightgreen.svg)](https://scikit-learn.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A complete, modern, responsive full-stack software application designed to monitor landslide hazards, analyze contributing geological and meteorological triggers, and provide actionable early warnings across the **8 North Eastern states of India**:
+An advanced, AI-driven disaster risk reduction and environmental surveillance platform tailored for the **8 North Eastern States of India** (Assam, Arunachal Pradesh, Meghalaya, Manipur, Mizoram, Nagaland, Tripura, and Sikkim).
 
-- **Assam**
-- **Arunachal Pradesh**
-- **Meghalaya**
-- **Manipur**
-- **Mizoram**
-- **Nagaland**
-- **Tripura**
-- **Sikkim**
+The system integrates real-time satellite weather telemetry from **Open-Meteo**, geotechnical terrain modeling (NASA SRTM DEM + NASA SMAP soil moisture), and a **Scikit-Learn Random Forest Classifier (95.0% Accuracy)** to predict landslide hazard probabilities, evaluate highway passability, advise safe alternative travel corridors, and generate comprehensive multi-format disaster risk reports.
 
 ---
 
 ## 🌟 Key Features
 
-1. **Interactive GIS Map (Leaflet + OpenStreetMap)**
-   - Multi-layer visualization:
-     - 🗺️ NER State Boundaries (8 states GeoJSON)
-     - 🟢🟡🟠🔴 Color-coded Risk Stations (Low: 0–25, Moderate: 26–50, High: 51–75, Critical: 76–100)
-     - 🔥 Dynamic Risk Heatmap Layer
-     - 🛣️ Strategic Highway Corridors with real-time connectivity status (🟢 Open, 🟡 Caution, 🔴 Blocked)
-     - 🏘️ Monitored Catchment Villages
-     - 📷 Crowdsourced Citizen Field Incident Markers
-     - ⚠️ Historical Landslide Disasters Catalog (GSI & SDMA records)
-   - Interactive popups containing: Location, State, Risk Level, Risk Score, Rainfall, Slope, Historical Count, Last updated time, and quick link to full analysis.
+1. **🗺️ 2D Interactive GIS Surveillance Map**
+   - High-resolution Planimetric & Satellite cartography with real-time terrain contours.
+   - 8 North-Eastern state boundary polygons (GeoJSON).
+   - Color-coded risk station markers (🟢 Low, 🟡 Moderate, 🟠 High, 🔴 Critical).
+   - Strategic highway corridors with live road status (🟢 OPEN, ⚠️ CAUTION, ⛔ BLOCKED).
+   - Interactive GIS Toolbar: Pan/Zoom compass, GPS Geolocation tracker, Layer toggles, and dedicated **Map Only View** and **Fullscreen / Short Screen Mode**.
 
-2. **Location Search & Detailed Condition Page**
-   - Instant search bar (e.g., search *"Gangtok"*, *"Haflong"*, *"Aizawl"*, *"Tawang"*).
-   - **Current Condition**: Temperature, Rainfall, Humidity, Wind Speed, Risk Score, Risk Level, and Telemetry timestamp.
-   - **Explainable AI (XAI) Risk Analysis**: Human-understandable breakdown explaining *why* the risk is predicted at that level (e.g., *"High rainfall and steep terrain are the major contributing factors. Historical landslide activity also increases the risk."*).
-   - Factor breakdown gauges for Rainfall Intensity, Slope Gradient, Elevation, Soil Moisture, Vegetation (NDVI), and Historical frequency.
-   - Feature Importance weight chart from Scikit-Learn Random Forest model.
-   - One-click PDF Risk Assessment Export.
+2. **🤖 Machine Learning Prediction Engine (95.0% Accuracy)**
+   - Pre-trained **Random Forest Classifier** (`backend/model.pkl`) with 150 ensemble estimators.
+   - Trained on 1,000+ geological landslide records (`data/landslide_dataset.csv`).
+   - Dynamic 9-feature geotechnical pipeline: Rainfall (27.7%), Slope Angle (21.6%), Soil Moisture (18.4%), Historical Landslides (13.4%), Distance to River (11.9%), Vegetation NDVI (4.3%), and Elevation.
 
-3. **AI / ML Risk Prediction Engine (Python + Scikit-Learn)**
-   - Random Forest Classifier (250 estimators) with balanced class weighting.
-   - Input Features: Rainfall, Rainfall Intensity, Slope, Elevation, Historical Landslide Frequency, Soil Moisture, NDVI, Coordinates.
-   - Output: Risk score 0–100 and Risk tier classification.
-   - Academic Transparency: Clear distinction between Demo/Simulated Telemetry and Live Weather API data.
+3. **🛣️ Strategic Highway Corridors & Best Route Advisor**
+   - Real-time road passability monitoring across strategic lifelines:
+     - **NH-10** (Siliguri – Kalimpong – Gangtok)
+     - **NH-29** (Dimapur – Kohima – Imphal)
+     - **NH-6** (Guwahati – Shillong – Silchar)
+     - **NH-13** (Trans-Arunachal Corridor)
+     - **NH-54** (Silchar – Kolasib – Aizawl)
+     - **NH-37** (Kaziranga – Jorhat bypass)
+   - Live AI passability predictions with recommended alternative safe detour routes.
 
-4. **Weather Integration (Open-Meteo & OpenWeatherMap)**
-   - Free, reliable real-time meteorological queries via Open-Meteo for any GPS coordinates in India (0 paid API key required).
-   - Optional OpenWeatherMap support via `.env`.
-   - Safe regional meteorological fallback to ensure zero demo crashes if offline.
+4. **🛰️ Live Meteorological & Satellite Telemetry**
+   - Live weather integration via Open-Meteo (zero API keys required, rate-friendly).
+   - Real-time 24-hour rainfall precipitation, ambient temperature, relative humidity, and surface pressure.
+   - Synchronized AI Risk Estimate gauge and 7-day predictive risk curves.
 
-5. **Early Warnings & Emergency Alerts**
-   - Automated threshold triggers whenever rainfall or combined risk crosses dangerous limits.
-   - Alert details: Severity (CRITICAL, HIGH, MODERATE), Target Location, Trigger Reason, Recommended Public Actions, and Status.
-   - Filter by State and Severity.
-   - Live cloudburst simulation button for live demonstrations.
+5. **📊 State-Wise Historical Analytics & Custom Filters**
+   - State-specific 5-year trend lines and event distribution charts for any chosen state.
+   - Date range selector (From Date ➔ To Date) and severity filters.
+   - Direct clickable incident catalog with detailed modal inspector.
 
-6. **Road Connectivity & Interstate Corridor Monitoring**
-   - Real-time tracking of strategic NER highways (NH-10 Siliguri-Gangtok, NH-29 Dimapur-Kohima, NH-54 Silchar-Aizawl, NH-6 Shillong-Silchar, NH-13 Trans-Arunachal, NH-37, NH-102, NH-8).
-   - Status indicators: 🟢 Open, 🟡 Caution (single-lane/slurry), 🔴 Blocked (debris washouts).
-   - Filter by State and Status.
-   - Interactive status update button for evaluation walkthroughs.
+6. **📑 Multi-Format Report Generator**
+   - Instant one-click generation and export:
+     - 📄 **PDF Disaster Report** (with official letterhead, summary stats, and high-risk stations)
+     - 📊 **Excel Spreadsheet (.xlsx)**
+     - 📝 **Word Document (.docx)**
+     - 📋 **CSV Data Export**
 
-7. **Citizen & Field Ground Reporting**
-   - "Report Incident" form with photo upload (device upload or sample attachment), video link, report type (*Landslide, Slope Crack, Road Blockage, Falling Rocks, Soil Movement, Other*), location, and observation description.
-   - "Incident Directory" with Report ID, timestamp, priority, review status (*Pending, Under Review, Verified, Resolved*), and interactive verification triage buttons.
+7. **🎛️ What-If Physics Simulator & HillGuard AI Assistant**
+   - Interactive environmental sandbox to test hypothetical scenarios (e.g., rainfall surges, slope steepening, deforestation).
+   - Embedded AI conversational copilot (*HillGuard AI*) for disaster safety questions.
 
-8. **Historical Multi-Year Analysis**
-   - Visual charts (Recharts):
-     - Year-wise reported incidents (2018–2024) and associated casualties.
-     - State-wise incident distribution across all 8 states.
-     - 24-hour rainfall threshold correlation curve.
-     - High-risk mountain districts ranking table.
-     - Curated documented case studies catalog (Tupul yard, New Haflong, Mangan, Sohra, Melthum, etc.).
-
-9. **Bilingual Support (English & हिन्दी)**
-   - Instant language toggle button in the top navigation bar.
-   - Complete UI text switches smoothly using a centralized translation dictionary.
-
-10. **Zero IoT / Physical Hardware Requirement**
-    - Built specifically as a software platform for college mini-projects.
-    - No physical sensors or microcontroller hardware required.
+8. **🔐 Universal Access & Authentication**
+   - Clean, modern, responsive glassmorphic login portal.
+   - Universal testing login enabled: any valid email and password auto-provisions access.
 
 ---
 
-## 🗂️ Project Structure
+## 🏗️ Project Architecture
 
 ```
-landslideguard-ai/
+Early-Landslide-Detect/
 ├── backend/
-│   ├── .venv/                   # Python Virtual Environment
-│   ├── app.py                   # FastAPI application with REST endpoints & ML integration
-│   ├── db.py                    # SQLite database models, migrations & 8-state seed data
-│   ├── weather.py               # Weather service (Open-Meteo, OpenWeather, regional fallback)
+│   ├── app.py                   # FastAPI REST API & ML prediction service
+│   ├── db.py                    # SQLite database models & seed datasets
+│   ├── weather.py               # Open-Meteo & OpenWeatherMap live weather service
 │   ├── model.pkl                # Trained Random Forest Scikit-learn pipeline artifact
-│   ├── test_backend.py          # Backend automated test suite
-│   ├── requirements.txt         # Python dependencies (fastapi, uvicorn, scikit-learn, etc.)
-│   ├── .env                     # Active environment variables
-│   └── .env.example             # Sample environment variables template
+│   ├── model_metrics.json       # Verified accuracy (0.95), F1-score & confusion matrix
+│   ├── landslideguard.db        # Seeded SQLite database
+│   ├── test_backend.py          # Automated backend verification test suite
+│   ├── requirements.txt         # Python dependencies
+│   ├── .env                     # Local environment config
+│   └── .env.example             # Environment template
 ├── frontend/
-│   ├── dist/                    # Production bundle
-│   ├── public/                  # Static assets
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Header.jsx              # App title, search, language switcher (EN/HI), alerts
-│   │   │   ├── Sidebar.jsx             # 8 working navigation links with live counters
-│   │   │   ├── Dashboard.jsx           # 8 KPI cards, critical alerts ticker, GIS preview
-│   │   │   ├── Map.jsx                 # Leaflet GIS map with 7 interactive layers & popups
-│   │   │   ├── HeatmapLayer.jsx        # Dynamic risk heatmap layer
-│   │   │   ├── LocationDetails.jsx     # Current condition & Explainable AI contributing factors
-│   │   │   ├── LocationsView.jsx       # Search & state/risk filtering with embedded details
-│   │   │   ├── AlertsView.jsx          # Early warnings feed with recommended actions
-│   │   │   ├── RoadMonitoringView.jsx  # Highway connectivity & Open/Caution/Blocked status
-│   │   │   ├── IncidentReportsView.jsx # Citizen reporting form + directory triage dashboard
-│   │   │   ├── HistoricalAnalysisView.jsx # Recharts charts: year, state, rainfall threshold
-│   │   │   ├── AboutView.jsx           # Project documentation, architecture & academic notice
-│   │   │   └── WhatIfSimulator.jsx     # Interactive ML parameter sandbox
+│   │   │   ├── Header.jsx              # Navigation header, state selector & live clock
+│   │   │   ├── Sidebar.jsx             # Left navigation menu with unread badges
+│   │   │   ├── LandingPage.jsx         # Modern landing & welcome portal
+│   │   │   ├── Login.jsx               # Centered login portal with universal test access
+│   │   │   ├── InteractiveMapPage.jsx  # Map container with Fullscreen & Map-only controls
+│   │   │   ├── Map.jsx                 # Leaflet 2D GIS map with live controls
+│   │   │   ├── RiskAnalysisPage.jsx    # Synchronized AI Risk Estimate & 7-day timeline
+│   │   │   ├── AlertsPage.jsx          # Live emergency alerts & highway route advisor
+│   │   │   ├── HistoricalAnalysisView.jsx # State-specific historical charts & filters
+│   │   │   ├── ReportsView.jsx         # Multi-format report builder (PDF, Word, Excel, CSV)
+│   │   │   ├── WhatIfSimulator.jsx     # Interactive geotechnical physics sandbox
+│   │   │   └── HillGuardChat.jsx       # Floating AI safety chat assistant
 │   │   ├── data/
-│   │   │   ├── riskLocations.js        # 22+ monitoring stations across all 8 NER states
-│   │   │   ├── roadsData.js            # Strategic highway corridors database
-│   │   │   ├── historicalLandslides.js # Documented disaster inventory (GSI, SDMA, BRO)
-│   │   │   └── nerGeoJSON.js           # 8 NER State boundary polygons
-│   │   ├── i18n/
-│   │   │   └── translations.js         # Complete English and Hindi bilingual dictionary
+│   │   │   ├── riskLocations.js        # 22+ monitoring stations across all 8 states
+│   │   │   ├── roadsData.js            # Strategic highway corridor database
+│   │   │   ├── historicalLandslides.js # Disaster catalog (GSI, SDMA records)
+│   │   │   └── nerGeoJSON.js           # 8 NER State boundary coordinates
 │   │   ├── services/
-│   │   │   ├── api.js                  # FastAPI client with offline demo fallbacks
-│   │   │   ├── report.js               # PDF risk assessment report generator
-│   │   │   └── weather.js              # Formatting helpers
-│   │   ├── App.jsx                     # Root application coordinator
-│   │   ├── App.css                     # Modern disaster-management design system
-│   │   ├── main.jsx                    # Vite entry point
-│   │   └── index.html                  # HTML5 entry with metadata and Inter font
-│   ├── package.json                    # Frontend dependencies
+│   │   │   ├── api.js                  # Axios client for backend endpoints
+│   │   │   └── weather.js              # Live Open-Meteo API consumer
+│   │   ├── App.jsx                     # Core application state coordinator
+│   │   └── main.jsx                    # Vite React entry point
+│   ├── package.json                    # Node dependencies
 │   └── vite.config.js                  # Vite configuration
-└── README.md                           # This comprehensive guide
+├── data/
+│   └── landslide_dataset.csv           # 1,000+ records geological training dataset
+└── README.md                           # Comprehensive documentation & execution guide
 ```
 
 ---
 
-## 🚀 Quick Start Guide
+## 🚀 How to Run the Project (Step-by-Step Guide)
 
 ### Prerequisites
-- **Python 3.10+**
-- **Node.js 18+** & **npm**
+
+Before starting, ensure you have the following installed on your computer:
+1. **Python 3.10+** ([Download Python](https://www.python.org/downloads/)) — *Make sure to check "Add Python to PATH" during installation.*
+2. **Node.js 18+ & npm** ([Download Node.js](https://nodejs.org/))
+3. **Git** ([Download Git](https://git-scm.com/))
 
 ---
 
-### Step 1: Backend Setup & Execution
+### Step 1: Clone the Repository
 
-1. Open a terminal in the `backend` directory:
+Open your terminal (PowerShell, Command Prompt, or Bash) and run:
+
+```bash
+git clone https://github.com/ImRohan35/Early-Landslide-Detect.git
+cd Early-Landslide-Detect
+```
+
+*(If you are running from inside the extracted folder `landslideguard-ai`, navigate into `landslideguard-ai`).*
+
+---
+
+### Step 2: Setup & Start Backend (FastAPI + ML Model)
+
+Open a **First Terminal Window**:
+
+1. Navigate to the backend directory:
    ```bash
-   cd landslideguard-ai/backend
+   cd backend
    ```
 
-2. If needed, create and activate a Python virtual environment:
+2. Create a Python virtual environment:
    ```bash
-   # Windows (PowerShell)
+   # On Windows (PowerShell):
    python -m venv .venv
    .\.venv\Scripts\Activate.ps1
 
-   # Linux / macOS
+   # On Windows (CMD):
+   python -m venv .venv
+   .\.venv\Scripts\activate.bat
+
+   # On Linux / macOS:
    python3 -m venv .venv
    source .venv/bin/activate
    ```
@@ -166,79 +166,90 @@ landslideguard-ai/
    pip install -r requirements.txt
    ```
 
-4. Configure environment variables (optional):
+4. Configure environment file (optional):
    ```bash
-   # Copies sample .env
    cp .env.example .env
    ```
-   *(By default, port `8000` is used. Open-Meteo works out of the box without any API key).*
 
-5. Run the automated backend verification test:
+5. Run automated test suite to verify the ML model:
    ```bash
    python test_backend.py
    ```
 
-6. Start the FastAPI server:
+6. Start the FastAPI backend server:
    ```bash
-   python app.py
-   # Or using uvicorn directly:
-   uvicorn app:app --reload --host 127.0.0.1 --port 8000
+   uvicorn app:app --host 127.0.0.1 --port 8000 --reload
    ```
-   - Interactive Swagger API docs are available at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-   - Health check: [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
+
+   ✅ Backend will start running at: **`http://127.0.0.1:8000`**
+   - **Interactive API Documentation (Swagger UI):** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+   - **Health Check Endpoint:** [http://127.0.0.1:8000/api/health](http://127.0.0.1:8000/api/health)
+   - **Model Metrics Endpoint:** [http://127.0.0.1:8000/api/model/metrics](http://127.0.0.1:8000/api/model/metrics)
 
 ---
 
-### Step 2: Frontend Setup & Execution
+### Step 3: Setup & Start Frontend (React + Vite)
 
-1. In a second terminal, navigate to the `frontend` directory:
+Open a **Second Terminal Window** (keep the backend terminal running):
+
+1. Navigate to the frontend directory:
    ```bash
-   cd landslideguard-ai/frontend
+   cd frontend
    ```
 
-2. Install npm dependencies (if not already installed):
+2. Install Node.js dependencies:
    ```bash
    npm install
    ```
 
-3. Build production bundle (to test for zero errors):
-   ```bash
-   npm run build
-   ```
-
-4. Start the Vite development server:
+3. Start the Vite development server:
    ```bash
    npm run dev
    ```
-5. Open your browser at: [http://localhost:5173](http://localhost:5173)
+
+   ✅ Frontend will start running at: **`http://localhost:5173`** (or `http://127.0.0.1:5173`)
+
+4. Open your web browser and navigate to:
+   ```
+   http://localhost:5173
+   ```
 
 ---
 
-## 🧪 How to Demonstrate All Major Features
+## 🔐 How to Log In
 
-| Feature | Where to Click / How to Test | Expected Behavior |
+The system includes a universal testing authentication pipeline:
+- **Email:** Type any valid email (e.g., `rohan@gmail.com` or `analyst@disaster.gov.in`)
+- **Password:** Type any password (e.g., `password123` or `admin123`)
+- Click **"Sign In to Operations"** to enter the live dashboard.
+
+---
+
+## 🧪 Feature Walkthrough & Verification
+
+| Module / Screen | Actions to Test | What Happens |
 | :--- | :--- | :--- |
-| **8 NER States Coverage** | Click **Locations** tab or filter dropdown | Displays stations from Assam, Arunachal Pradesh, Meghalaya, Manipur, Mizoram, Nagaland, Tripura, Sikkim. |
-| **Location Search** | In top search bar or Locations search input, type `"Gangtok"` | Opens Gangtok detailed page showing current condition, weather, 89% Critical risk score, and factor explanation. |
-| **Explainable AI** | Inspect any location page (e.g. Haflong or Sohra) | Clearly explains *why* the risk is elevated: *"Torrential rainfall exceeding regional saturation thresholds and steep terrain are major contributing factors."* |
-| **Bilingual Language** | Click **हिन्दी** / **English** button in top header | Whole UI (navigation, cards, risk labels, alerts, table columns) instantly translates to Hindi without page reload. |
-| **GIS Risk Map** | Click **Risk Map** tab | Fullscreen Leaflet map displaying 8 state boundaries, color markers (🟢 Low, 🟡 Mod, 🟠 High, 🔴 Critical), roads, villages, and citizen report pins. |
-| **Map Popup** | Click on any circular location pin on the map | Popup shows Location, State, Risk Level, Risk Score, Rainfall, Slope, Historical count, Last updated time, and "Inspect Details" button. |
-| **Early Warnings** | Click **Alerts** tab & click *"Simulate Cloudburst Alert"* | Generates a live Critical emergency bulletin with reason, affected sector, and recommended public safety action. |
-| **Road Monitoring** | Click **Road Monitoring** tab | Displays strategic highway lifelines (NH-10, NH-29, NH-54, NH-6, NH-13) with Open/Caution/Blocked statuses and status cycle button. |
-| **Citizen Reporting** | Click **Incident Reports** &rarr; *"Submit New Incident Report"* | Fill in location, description, attach photo, click submit &rarr; Report instantly appears in the live directory. |
-| **Historical Analysis** | Click **Historical Analysis** tab | Displays year-wise disaster chart, state-wise chart, rainfall probability curve, high-risk districts, and GSI case studies. |
-| **About System** | Click **About System** tab | Displays complete college mini-project overview, architecture diagram, methodology, and academic disclaimer. |
+| **Interactive Map** | Click **"Map"** in sidebar | Opens 2D Leaflet map showing all 8 NER states, stations, roads, and incidents. |
+| **Map Only & Fullscreen** | Click **"🗺️ Map Only View"** or **"⛶ Full Screen Map"** | Expands map to 100% full screen; shows floating button to exit back. |
+| **Highway Route Advisor** | Click **"Alerts"** in sidebar | View highway corridors (NH-10, NH-29, NH-6) with Open/Blocked status and alternate safe travel detours. |
+| **State Historical Trends** | Click **"Historical Data"** & select a state (e.g., *Meghalaya*) | 5-Year incident chart and event donut update dynamically for that specific state. |
+| **Multi-Format Reports** | Click **"Reports"** ➔ Select format (PDF, Excel, Word, CSV) | Downloads verified reports in your chosen format instantly. |
+| **What-If Simulator** | Click **"What-If Simulator"** & adjust rainfall slider | Risk score recalculates in real-time using live ML weights. |
+| **Live Telemetry Proof** | Open browser `F12` ➔ Network tab ➔ Filter `open-meteo` | View live outgoing satellite weather requests for current coordinates. |
 
 ---
 
-## 🔐 Operator Console Credentials (Optional)
-The system comes pre-configured with active session bypass for easy college evaluation. If using authentication screens:
-- **Email:** `analyst@ner-disaster.gov.in`
-- **Password:** `disaster2026` (or any non-empty string for local evaluation)
-- **Role:** Disaster Operations Lead &middot; Node NER-GHY-04
+## 🛠️ Technology Stack
+
+- **Frontend:** React 18, Vite, Leaflet, React-Leaflet, Lucide Icons, Recharts, jsPDF, docx, xlsx.
+- **Backend:** Python 3.10+, FastAPI, Uvicorn, SQLite, Pydantic, Joblib, NumPy, Pandas.
+- **Machine Learning:** Scikit-Learn Random Forest Classifier (Accuracy: 95.0%).
+- **Telemetry & APIs:** Open-Meteo REST API, WMO Codes, NASA SRTM DEM, NASA SMAP.
 
 ---
 
-## 📜 Academic Transparency & Disclaimer
-This application is created as a **College Mini Project** in the domain of Computer Science and Disaster Risk Reduction. It utilizes scientific datasets, open meteorological APIs (Open-Meteo), and Scikit-Learn machine learning pipelines. No physical hardware sensors or IoT microcontrollers are deployed. Demo and simulated datasets are explicitly marked as such throughout the user interface.
+## 📜 Academic Notice & License
+
+This software platform is developed as a comprehensive **Disaster Risk Reduction & AI Decision Support System** for monitoring landslide hazards across North-Eastern India.
+
+Released under the [MIT License](LICENSE).

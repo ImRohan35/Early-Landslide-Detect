@@ -7,7 +7,6 @@ import {
   SlidersHorizontal,
   History,
   FileText,
-  Users,
   Settings,
   Info,
 } from 'lucide-react';
@@ -27,7 +26,6 @@ export default function Sidebar({
     { key: 'What-If Simulator', label: 'What-If Simulator', icon: SlidersHorizontal, activeColor: '#10b981' },
     { key: 'Historical Data', label: 'Historical Data', icon: History, activeColor: '#8b5cf6' },
     { key: 'Reports', label: 'Reports', icon: FileText, activeColor: '#597753' },
-    { key: 'Community', label: 'Community', icon: Users, activeColor: '#10b981' },
     { key: 'Settings', label: 'Settings', icon: Settings, activeColor: '#10b981' },
     { key: 'About', label: 'About', icon: Info, activeColor: '#10b981' },
   ];

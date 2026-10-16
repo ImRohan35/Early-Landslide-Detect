@@ -16,6 +16,9 @@ import {
   CloudRain,
   Droplets,
   Mountain,
+  Maximize2,
+  Minimize2,
+  Monitor,
 } from 'lucide-react';
 import {
   BarChart,
@@ -76,6 +79,8 @@ export default function InteractiveMapPage({
   const [lastUpdated, setLastUpdated] = useState(() => formatISTTime());
   const [currentTimestamp, setCurrentTimestamp] = useState(() => `${formatISTDate()}, ${formatISTTime()}`);
   const [geoLoading, setGeoLoading] = useState(false);
+  const [isFullscreenMap, setIsFullscreenMap] = useState(false);
+  const [mapOnlyMode, setMapOnlyMode] = useState(false);
 
   // Sync prop changes for selectedLocation
   useEffect(() => {
@@ -200,23 +205,91 @@ export default function InteractiveMapPage({
           }}
         >
           <div>
-            <h1
-              style={{
-                fontSize: '1.85rem',
-                fontWeight: 800,
-                color: theme === 'dark' ? '#ffffff' : '#0d2818',
-                margin: '0 0 4px',
-                fontFamily: "'Outfit', sans-serif",
-              }}
-            >
-              Interactive <span style={{ color: '#e05626' }}>Risk Map</span>
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
+              <h1
+                style={{
+                  fontSize: '1.85rem',
+                  fontWeight: 800,
+                  color: theme === 'dark' ? '#ffffff' : '#0d2818',
+                  margin: 0,
+                  fontFamily: "'Outfit', sans-serif",
+                }}
+              >
+                Interactive <span style={{ color: '#e05626' }}>Risk Map</span>
+              </h1>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: 20,
+                  padding: '4px 12px',
+                  fontSize: '0.76rem',
+                  color: '#047857',
+                  fontWeight: 700,
+                }}
+              >
+                🎯 ML Model Accuracy: 95.0% · Random Forest Pipeline
+              </span>
+            </div>
             <p style={{ margin: 0, fontSize: '0.86rem', color: '#64748b' }}>
-              Explore landslide risk across the North Eastern Region using real-time and historical data.
+              Explore landslide risk across the North Eastern Region using real-time and historical geospatial data.
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            {/* Map Only / Split Dashboard Mode Switcher */}
+            <button
+              type="button"
+              onClick={() => setMapOnlyMode(!mapOnlyMode)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                background: mapOnlyMode ? '#10b981' : theme === 'dark' ? '#143828' : '#ffffff',
+                color: mapOnlyMode ? '#ffffff' : theme === 'dark' ? '#86efac' : '#15803d',
+                border: `1px solid ${mapOnlyMode ? '#10b981' : '#bbf7d0'}`,
+                borderRadius: 12,
+                padding: '9px 15px',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)',
+                transition: 'all 0.18s ease',
+              }}
+              title="Toggle full-width Map Only view or split dashboard"
+            >
+              <Monitor size={15} />
+              <span>{mapOnlyMode ? '📊 Split Dashboard' : '🗺️ Map Only View'}</span>
+            </button>
+
+            {/* Fullscreen Map Toggle (Full Screen / Short Screen) */}
+            <button
+              type="button"
+              onClick={() => setIsFullscreenMap(!isFullscreenMap)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                background: isFullscreenMap ? '#dc2626' : theme === 'dark' ? '#143828' : '#ffffff',
+                color: isFullscreenMap ? '#ffffff' : '#ea580c',
+                border: `1px solid ${isFullscreenMap ? '#dc2626' : '#fed7aa'}`,
+                borderRadius: 12,
+                padding: '9px 15px',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(234, 88, 12, 0.15)',
+                transition: 'all 0.18s ease',
+              }}
+              title={isFullscreenMap ? 'Return to normal short screen view' : 'Expand map to complete full screen'}
+            >
+              {isFullscreenMap ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+              <span>{isFullscreenMap ? '🗗 Short Screen' : '⛶ Full Screen Map'}</span>
+            </button>
+
             {/* Use Current Location Button */}
             <button
               onClick={handleUseCurrentLocation}
@@ -240,36 +313,120 @@ export default function InteractiveMapPage({
               <span>{geoLoading ? 'Locating...' : 'Use Current Location'}</span>
             </button>
 
-            {/* Last Updated Timestamp Button */}
-            <div
+            {/* Interactive Refresh & Last Updated Timestamp Button */}
+            <button
+              type="button"
+              onClick={() => loadLiveWeather(currentLoc)}
+              disabled={weatherLoading}
+              title="Click to refresh real-time meteorological and risk telemetry"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
                 background: theme === 'dark' ? '#143828' : '#ffffff',
-                border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.12)' : '#e2e8f0'}`,
+                border: `1px solid ${weatherLoading ? '#10b981' : theme === 'dark' ? 'rgba(255,255,255,0.12)' : '#e2e8f0'}`,
                 borderRadius: 12,
                 padding: '9px 16px',
                 fontSize: '0.82rem',
-                color: '#64748b',
+                color: theme === 'dark' ? '#cbd5e1' : '#334155',
+                cursor: 'pointer',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                transition: 'all 0.2s ease',
               }}
             >
-              <Clock size={15} color="#94a3b8" />
-              <span>Last Updated <b>{currentTimestamp}</b></span>
-            </div>
+              <RefreshCw size={14} className={weatherLoading ? 'loading-spinner' : ''} color={weatherLoading ? '#10b981' : '#94a3b8'} />
+              <span>{weatherLoading ? 'Refreshing Data...' : <>Last Updated <b>{currentTimestamp}</b></>}</span>
+            </button>
           </div>
         </div>
 
-        {/* Main Grid: Left Map (65%) + Right Live Data & Recent Alerts (35%) */}
+        {/* Dedicated Fixed Fullscreen Map Modal Portal when isFullscreenMap is true */}
+        {isFullscreenMap && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 999999,
+              width: '100vw',
+              height: '100vh',
+              background: '#071610',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Floating Top Controls in Fullscreen */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 20,
+                zIndex: 1000000,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <span
+                style={{
+                  background: 'rgba(7, 24, 17, 0.92)',
+                  color: '#86efac',
+                  border: '1px solid rgba(52, 211, 153, 0.4)',
+                  padding: '8px 16px',
+                  borderRadius: 12,
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                }}
+              >
+                🎯 ML Prediction Accuracy: 95.0% · Full-Screen Surveillance
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsFullscreenMap(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '9px 18px',
+                  fontSize: '0.86rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.45)',
+                }}
+                title="Return to standard dashboard (Short Screen)"
+              >
+                <Minimize2 size={16} />
+                <span>🗗 Short Screen (Exit Fullscreen)</span>
+              </button>
+            </div>
+
+            <div style={{ flex: 1, width: '100%', height: '100%' }}>
+              <MapView
+                selectedLocation={currentLoc}
+                onLocationSelect={handleSelectLocation}
+                theme={theme}
+                mapType={mapLayer}
+                selectedState={selectedState}
+                onInspectDetails={() => onNavigate && onNavigate('Analysis')}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Main Grid: Left Map (Full width if mapOnlyMode, else 65%) + Right Live Data & Recent Alerts (35%) */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1.75fr) minmax(360px, 420px)',
+            gridTemplateColumns: mapOnlyMode ? '1fr' : 'minmax(0, 1.75fr) minmax(360px, 420px)',
             gap: 20,
             marginBottom: 24,
           }}
-          className="grid-cols-1 lg:grid-cols-2"
+          className={mapOnlyMode ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}
         >
           {/* Map Container */}
           <div
@@ -279,9 +436,10 @@ export default function InteractiveMapPage({
               overflow: 'hidden',
               boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
               border: `1px solid ${theme === 'dark' ? 'rgba(52, 211, 153, 0.2)' : '#e2e8f0'}`,
-              height: 520,
-              minHeight: 520,
+              height: mapOnlyMode ? 640 : 520,
+              minHeight: mapOnlyMode ? 640 : 520,
               position: 'relative',
+              transition: 'all 0.25s ease',
             }}
           >
             <MapView
@@ -294,7 +452,8 @@ export default function InteractiveMapPage({
             />
           </div>
 
-          {/* Right Column: Live Data (Top) + Recent Alerts (Bottom) */}
+          {/* Right Column: Live Data (Top) + Recent Alerts (Bottom) - Only rendered when not in mapOnlyMode */}
+          {!mapOnlyMode && (
           <div
             style={{
               background: theme === 'dark' ? '#0d281e' : '#ffffff',
@@ -526,6 +685,7 @@ export default function InteractiveMapPage({
               </div>
             </div>
           </div>
+          )}
         </div>
 
         {/* Real-time Multi-Day Predictive Landslide Risk Timeline */}

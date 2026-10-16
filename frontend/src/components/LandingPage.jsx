@@ -44,13 +44,33 @@ export default function LandingPage({
         setErrorMessage('Please enter your password.');
         return;
       }
+      if (!email || !email.trim()) {
+        setErrorMessage('Please enter your email address.');
+        return;
+      }
+
+      // Universal login: Any user can test with their own email and password
+      const rawName = email.includes('@') ? email.split('@')[0] : email;
+      const formattedName = rawName
+        .replace(/[._-]/g, ' ')
+        .split(' ')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(' ');
+
+      const userObj = {
+        name: formattedName || 'Officer',
+        role: email.toLowerCase().includes('admin')
+          ? 'Administrator'
+          : email.toLowerCase().includes('iit')
+          ? 'Researcher'
+          : 'Field Analyst',
+        email: email.trim(),
+        avatar: (formattedName.charAt(0) || 'U').toUpperCase(),
+      };
+
+      localStorage.setItem('nelrms-user', JSON.stringify(userObj));
       if (onLoginSuccess) {
-        onLoginSuccess({
-          name: email.toLowerCase().includes('rohan') ? 'Rohan Singh' : email.split('@')[0],
-          role: 'Student',
-          email: email || 'rohan.research@iitg.ac.in',
-          avatar: 'R',
-        });
+        onLoginSuccess(userObj);
       } else if (onNavigate) {
         onNavigate('Map');
       }
@@ -64,22 +84,21 @@ export default function LandingPage({
         setErrorMessage('Please enter a valid email address.');
         return;
       }
-      if (!password || password.length < 6) {
-        setErrorMessage('Password must be at least 6 characters.');
-        return;
-      }
-      if (password !== confirmPassword) {
-        setErrorMessage('Passwords do not match.');
+      if (!password || password.length < 4) {
+        setErrorMessage('Password must be at least 4 characters.');
         return;
       }
 
+      const userObj = {
+        name: fullName.trim(),
+        role: 'Field Analyst',
+        email: email.trim(),
+        avatar: fullName.charAt(0).toUpperCase(),
+      };
+
+      localStorage.setItem('nelrms-user', JSON.stringify(userObj));
       if (onLoginSuccess) {
-        onLoginSuccess({
-          name: fullName.trim(),
-          role: 'Researcher',
-          email: email,
-          avatar: fullName.charAt(0).toUpperCase(),
-        });
+        onLoginSuccess(userObj);
       } else if (onNavigate) {
         onNavigate('Map');
       }
@@ -431,6 +450,25 @@ export default function LandingPage({
             </span>
           </div>
 
+          <div style={{ textAlign: 'center', marginBottom: 12 }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: 20,
+                padding: '4px 12px',
+                fontSize: '0.74rem',
+                color: '#047857',
+                fontWeight: 700,
+              }}
+            >
+              🎯 ML Model Accuracy: 95.0% · Random Forest Pipeline
+            </span>
+          </div>
+
           <h2
             style={{
               textAlign: 'center',
@@ -440,17 +478,17 @@ export default function LandingPage({
               fontFamily: "'Outfit', sans-serif",
             }}
           >
-            Welcome Back
+            Welcome Portal
           </h2>
           <p
             style={{
               textAlign: 'center',
               fontSize: '0.82rem',
               color: '#64748b',
-              margin: '0 0 22px',
+              margin: '0 0 18px',
             }}
           >
-            Login to access your account and continue monitoring landslide risk.
+            Enter your credentials (or test with any email & password) to inspect real-time NER landslide telemetry.
           </p>
 
           {/* Segmented Toggle: Login / Sign Up */}
@@ -875,6 +913,51 @@ export default function LandingPage({
               <span>Continue with GitHub</span>
             </button>
           </div>
+
+          {/* Quick Instant Access Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (onLoginSuccess) {
+                onLoginSuccess({
+                  name: 'Rohan Singh',
+                  role: 'Student Researcher',
+                  email: 'rohan.research@iitg.ac.in',
+                  avatar: 'R',
+                });
+              } else if (onNavigate) {
+                onNavigate('Map');
+              }
+            }}
+            style={{
+              width: '100%',
+              background: '#0d281e',
+              color: '#34d399',
+              border: '1px solid rgba(52, 211, 153, 0.4)',
+              borderRadius: 12,
+              padding: '11px',
+              fontSize: '0.86rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              marginBottom: 16,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#143828';
+              e.currentTarget.style.borderColor = '#10b981';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#0d281e';
+              e.currentTarget.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+            }}
+          >
+            <span>⚡ Enter Live GIS Map & Dashboard (Instant Access)</span>
+            <ArrowRight size={15} />
+          </button>
 
           {/* Secure Access Bottom Notice */}
           <div
