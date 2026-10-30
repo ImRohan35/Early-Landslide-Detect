@@ -130,12 +130,12 @@ app.add_middleware(
 class PredictionPayload(BaseModel):
     rainfall: float = Field(..., ge=0, description="Cumulative rainfall in mm")
     slope: float = Field(..., ge=0, le=90, description="Slope gradient in degrees")
-    elevation: float = Field(..., ge=-500, le=9000, description="Elevation in meters")
-    soil_moisture: float = Field(..., ge=0, le=100, description="Soil moisture %")
+    elevation: Optional[float] = Field(1000.0, ge=-500, le=9000, description="Elevation in meters")
+    soil_moisture: Optional[float] = Field(60.0, ge=0, le=100, description="Soil moisture %")
     soil_type: Optional[str] = Field("Loamy", description="Soil category")
-    ndvi: float = Field(..., ge=-1.0, le=1.0, description="Vegetation index (-1 to 1)")
+    ndvi: Optional[float] = Field(0.65, ge=-1.0, le=1.0, description="Vegetation index (-1 to 1)")
     distance_to_river: Optional[float] = Field(300.0, ge=0, description="Distance from drainage/river in meters")
-    historical_landslide: Any = Field(..., description="Historical occurrence (0/1 or bool)")
+    historical_landslide: Optional[Any] = Field(0, description="Historical occurrence (0/1 or bool)")
     latitude: Optional[float] = Field(None, ge=-90, le=90)
     longitude: Optional[float] = Field(None, ge=-180, le=180)
     location_name: Optional[str] = Field(None)
@@ -270,9 +270,36 @@ def generate_natural_explanation(features: Dict[str, Any], risk_level: str) -> s
 
 
 def compute_prediction(features: Dict[str, Any]) -> tuple[float, float, str, str, str]:
-    """Execute Scikit-Learn inference with geomorphic equation fallback."""
+    """Execute Scikit-Learn inference blended with continuous geomorphic terrain physics."""
     hist_val = 1 if str(features.get("historical_landslide")).lower() in ["1", "true", "yes"] else 0
     features["historical_landslide"] = hist_val
+
+    rf_val = float(features.get("rainfall", 0))
+    slope_val = float(features.get("slope", 0))
+    sm_val = float(features.get("soil_moisture", 60))
+    ndvi_val = float(features.get("ndvi", 0.65))
+    river_val = float(features.get("distance_to_river", 300))
+
+    # Dynamic soil saturation response to active precipitation
+    adj_sm = min(100.0, sm_val * 0.7 + (rf_val / 160.0) * 30.0)
+
+    # 1. Continuous Rainfall Driving Force (0 to 36 pts)
+    rf_comp = min(36.0, (rf_val / 200.0) * 32.0 + (max(0.0, rf_val - 200.0) / 200.0) * 4.0)
+
+    # 2. Continuous Slope Incline Gravity Component (0 to 26 pts)
+    slope_comp = min(26.0, (slope_val / 45.0) * 23.0 + (max(0.0, slope_val - 45.0) / 25.0) * 3.0)
+
+    # 3. Continuous Pore-Water Pressure Component (0 to 20 pts)
+    sm_comp = min(20.0, (adj_sm / 100.0) * 20.0)
+
+    # 4. Documented Structural Slip History (2 to 10 pts)
+    hist_comp = 10.0 if hist_val == 1 else 2.0
+
+    # 5. Root Cohesion & Vegetation Deficit via NDVI (0 to 8 pts)
+    ndvi_comp = max(0.0, (0.88 - ndvi_val) / 0.88) * 8.0
+
+    # Total continuous physical score
+    continuous_score = round(max(5.0, min(98.0, rf_comp + slope_comp + sm_comp + hist_comp + ndvi_comp)), 1)
 
     if MODEL is not None:
         try:
@@ -281,37 +308,30 @@ def compute_prediction(features: Dict[str, Any]) -> tuple[float, float, str, str
             classes = MODEL.named_steps["classifier"].classes_
             class_probs = dict(zip(classes, probs))
 
-            # Probability of significant slope vulnerability (High + Critical)
             high_prob = class_probs.get("High", 0)
             crit_prob = class_probs.get("Critical", 0)
             mod_prob = class_probs.get("Moderate", 0)
             low_prob = class_probs.get("Low", 0)
 
-            # Continuous probability estimate (0.0 to 1.0)
-            risk_score = (low_prob * 15.0) + (mod_prob * 40.0) + (high_prob * 72.0) + (crit_prob * 95.0)
-            risk_score = round(max(5.0, min(98.0, float(risk_score))), 1)
+            # Ensemble probability base
+            ml_base_score = (low_prob * 14.0) + (mod_prob * 38.0) + (high_prob * 68.0) + (crit_prob * 92.0)
 
-            # Pick highest probability class
-            pred_class = MODEL.predict(df)[0].upper()
-            risk_level = pred_class
+            # Granular blend: 65% continuous terrain physics + 35% Random Forest ensemble weighting
+            # Guarantees every single mm of rain or degree of slope moves the prediction dynamically
+            blended_score = round(0.65 * continuous_score + 0.35 * ml_base_score, 1)
+            risk_score = round(max(5.0, min(98.0, blended_score)), 1)
 
-            # Calibrated probability percentage
+            risk_level = score_to_risk_level(risk_score)
             prob_percent = int(round(risk_score))
             explanation = generate_natural_explanation(features, risk_level)
             recommendation = get_recommendation(risk_level)
 
             return float(prob_percent), risk_score, risk_level, explanation, recommendation
         except Exception as err:
-            logger.warning("ML pipeline error: %s. Using geomorphic fallback.", err)
+            logger.warning("ML pipeline error: %s. Using continuous geomorphic fallback.", err)
 
-    # Fallback geomorphic equation
-    rf = min(1.0, features.get("rainfall", 0) / 220.0) * 35.0
-    slope = min(1.0, features.get("slope", 0) / 45.0) * 25.0
-    sm = min(1.0, features.get("soil_moisture", 0) / 100.0) * 20.0
-    hist = 12.0 if hist_val == 1 else 0.0
-    ndvi = max(0.0, (0.90 - features.get("ndvi", 0.7)) / 0.90) * 8.0
-
-    risk_score = round(min(98.0, max(5.0, rf + slope + sm + hist + ndvi)), 1)
+    # Fallback continuous geomorphic equation
+    risk_score = continuous_score
     risk_level = score_to_risk_level(risk_score)
     prob_percent = int(round(risk_score))
     explanation = generate_natural_explanation(features, risk_level)

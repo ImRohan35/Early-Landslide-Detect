@@ -203,22 +203,6 @@ export default function AlertsPage({ onNavigate, theme = 'light' }) {
             >
               Alerts, Road Passability & <span style={{ color: '#ea580c' }}>Safe Routes</span>
             </h1>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: 20,
-                padding: '4px 12px',
-                fontSize: '0.76rem',
-                color: '#047857',
-                fontWeight: 700,
-              }}
-            >
-              🎯 ML Prediction Pipeline: 95.0% Accuracy · Real-Time Sentinel-1 & IMD Telemetry
-            </span>
           </div>
           <p
             style={{
@@ -893,7 +877,6 @@ export default function AlertsPage({ onNavigate, theme = 'light' }) {
             >
               <div>📍 <b>Location:</b> {selectedAlert.district}, {selectedAlert.state}</div>
               {selectedAlert.highway && <div>🛣️ <b>Highway Corridor:</b> {selectedAlert.highway}</div>}
-              <div>🎯 <b>Model Validation Accuracy:</b> 95.0% (Random Forest Classifier Pipeline)</div>
             </div>
 
             <button

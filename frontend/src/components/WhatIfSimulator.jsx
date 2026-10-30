@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   AlertOctagon,
   AlertTriangle,
@@ -23,7 +23,7 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
-import { getRiskLevelFromScore, riskColors, riskLocations } from '../data/riskLocations';
+import { calculateGeomorphicRisk, getRiskLevelFromScore, riskColors, riskLocations } from '../data/riskLocations';
 import { predictRisk } from '../services/api';
 
 const SCENARIOS = [
@@ -121,37 +121,56 @@ export default function WhatIfSimulator({ selectedLocation, onNavigate, theme = 
     setActiveScenario(null);
   }, [loc.id]);
 
-  const currentScore = Number(loc.riskScore ?? loc.risk_score ?? 68);
-  const currentLevel = getRiskLevelFromScore(currentScore);
+  // True station-specific baseline risk
+  const baselineAssessment = useMemo(() => {
+    return calculateGeomorphicRisk({
+      rainfall: Number(loc.rainfall || 25),
+      slope: Number(loc.slope || 28),
+      soilMoisture: Number(loc.soil_moisture || loc.soilMoisture || 65),
+      historicalLandslides: Number(loc.historical_landslides || loc.historicalLandslides || 1) > 0 ? 1 : 0,
+      ndvi: Number(loc.ndvi || 0.45),
+      elevation: Number(loc.elevation || 1450),
+    });
+  }, [loc]);
+
+  const currentScore = baselineAssessment.riskScore;
+  const currentLevel = baselineAssessment.riskLevel;
+
+  // Real-time instantaneous dynamic calculation as sliders drag
+  const liveSimulation = useMemo(() => {
+    return calculateGeomorphicRisk({
+      rainfall: values.rainfall,
+      slope: values.slope,
+      soilMoisture: values.soilMoisture,
+      historicalLandslides: values.historicalLandslide ? 1 : 0,
+      ndvi: values.ndvi,
+      elevation: values.elevation,
+    });
+  }, [values]);
 
   const handleSlider = (key, val) => {
     setValues((prev) => ({ ...prev, [key]: Number(val) }));
     setActiveScenario(null);
+    setSimulation(null); // Instantly switches to real-time live sliding calculation
   };
 
   const handleScenarioClick = (sc) => {
     setActiveScenario(sc.id);
     setValues({ ...sc.values });
+    setSimulation(null);
   };
 
   const runSimulation = async () => {
     setLoading(true);
     try {
       const res = await predictRisk({ ...loc, ...values });
-      const score = Number(res.risk_score ?? res.riskScore ?? res.probability_value ?? 70);
+      const score = Number(res.risk_score ?? res.riskScore ?? res.probability_value ?? liveSimulation.riskScore);
       const level = res.risk_level
         ? res.risk_level.charAt(0).toUpperCase() + res.risk_level.slice(1).toLowerCase()
         : getRiskLevelFromScore(score);
       setSimulation({ score, level });
     } catch {
-      // Accurate statistical simulation fallback
-      const rfEffect = (values.rainfall / 300) * 35;
-      const smEffect = (values.soilMoisture / 100) * 25;
-      const slopeEffect = (values.slope / 50) * 25;
-      const vegEffect = (1 - values.ndvi) * 15;
-      const histEffect = values.historicalLandslide ? 10 : 0;
-      const simScore = Math.min(98, Math.max(12, Math.round(rfEffect + smEffect + slopeEffect + vegEffect + histEffect)));
-      setSimulation({ score: simScore, level: getRiskLevelFromScore(simScore) });
+      setSimulation({ score: liveSimulation.riskScore, level: liveSimulation.riskLevel });
     } finally {
       setLoading(false);
     }
@@ -163,9 +182,9 @@ export default function WhatIfSimulator({ selectedLocation, onNavigate, theme = 
     setActiveScenario(null);
   };
 
-  const simScore = simulation ? simulation.score : currentScore;
-  const simLevel = simulation ? simulation.level : currentLevel;
-  const scoreDiff = simulation ? simulation.score - currentScore : 0;
+  const simScore = simulation ? simulation.score : liveSimulation.riskScore;
+  const simLevel = simulation ? simulation.level : liveSimulation.riskLevel;
+  const scoreDiff = Math.round(simScore - currentScore);
 
   const getColor = (level) => {
     const l = (level || 'Low').toLowerCase();

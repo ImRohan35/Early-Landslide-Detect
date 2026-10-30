@@ -450,25 +450,6 @@ export default function LandingPage({
             </span>
           </div>
 
-          <div style={{ textAlign: 'center', marginBottom: 12 }}>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: 20,
-                padding: '4px 12px',
-                fontSize: '0.74rem',
-                color: '#047857',
-                fontWeight: 700,
-              }}
-            >
-              🎯 ML Model Accuracy: 95.0% · Random Forest Pipeline
-            </span>
-          </div>
-
           <h2
             style={{
               textAlign: 'center',

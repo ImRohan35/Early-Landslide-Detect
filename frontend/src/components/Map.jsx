@@ -481,12 +481,20 @@ export default function Map({
   onInspectDetails,
   mapType = 'satellite',
   selectedState = 'All States',
+  userLocation: propUserLocation = null,
+  onUserLocationChange,
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [layersOpen, setLayersOpen] = useState(false);
   const [resetCount, setResetCount] = useState(0);
   const [flyCount, setFlyCount] = useState(0);
-  const [userCoords, setUserCoords] = useState(null);
+  const [userCoords, setUserCoords] = useState(propUserLocation || null);
+
+  useEffect(() => {
+    if (propUserLocation) {
+      setUserCoords(propUserLocation);
+    }
+  }, [propUserLocation]);
 
   // Multi-layer visualization - Default to Satellite
   const [baseMap, setBaseMap] = useState('satellite'); // 'satellite' | 'osm' | 'terrain' | 'street'
@@ -522,26 +530,55 @@ export default function Map({
   };
 
   const handleMyLocation = () => {
+    const fallbackToIP = async () => {
+      try {
+        if (onToast) onToast('Resolving approximate network location...', 'info');
+        const res = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(6000) });
+        const data = await res.json();
+        if (data && data.latitude && data.longitude) {
+          const coords = {
+            latitude: Number(data.latitude),
+            longitude: Number(data.longitude),
+            accuracy: 5000,
+            city: data.city || data.region,
+            source: 'Network IP',
+          };
+          setUserCoords(coords);
+          if (onUserLocationChange) onUserLocationChange(coords);
+          const inNER = coords.latitude >= 21.5 && coords.latitude <= 29.5 && coords.longitude >= 88.0 && coords.longitude <= 97.5;
+          if (onToast) {
+            onToast(
+              `Detected location: ${data.city || data.region || ''} (${coords.latitude.toFixed(2)}°N, ${coords.longitude.toFixed(2)}°E)${inNER ? ' [Within NER grid]' : ' [Outside NER - mapped to monitoring network]'}`,
+              inNER ? 'success' : 'warning'
+            );
+          }
+          return;
+        }
+      } catch {}
+      if (onToast) onToast('Unable to detect location. Please check browser permissions.', 'warning');
+    };
+
     if (!navigator.geolocation) {
-      if (onToast) onToast('Geolocation is not supported by your browser.', 'error');
+      fallbackToIP();
       return;
     }
 
-    if (onToast) onToast('Requesting current browser location...');
+    if (onToast) onToast('Requesting current device location...');
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         const accuracy = Math.round(position.coords.accuracy || 0);
-        const coords = { latitude: lat, longitude: lon, accuracy };
+        const coords = { latitude: lat, longitude: lon, accuracy, source: 'GPS' };
         setUserCoords(coords);
+        if (onUserLocationChange) onUserLocationChange(coords);
 
         const inNER = lat >= 21.5 && lat <= 29.5 && lon >= 88.0 && lon <= 97.5;
         if (!inNER) {
           if (onToast) {
             onToast(
-              `Current Location: ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E. Note: Location is outside the North-Eastern Region (NER). Landslide monitoring applies to Assam, Arunachal Pradesh, Meghalaya, Manipur, Mizoram, Nagaland, Tripura, and Sikkim.`,
+              `Current Location: ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E (Outside NER coverage - nearest regional station activated).`,
               'warning'
             );
           }
@@ -551,18 +588,10 @@ export default function Map({
           }
         }
       },
-      (error) => {
-        let msg = 'Unable to retrieve current location.';
-        if (error.code === error.PERMISSION_DENIED) {
-          msg = 'Location permission was denied by your browser.';
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          msg = 'Location information is unavailable from your device.';
-        } else if (error.code === error.TIMEOUT) {
-          msg = 'Location request timed out.';
-        }
-        if (onToast) onToast(msg, 'warning');
+      () => {
+        fallbackToIP();
       },
-      { timeout: 10000, enableHighAccuracy: true }
+      { timeout: 8000, enableHighAccuracy: true, maximumAge: 60000 }
     );
   };
 

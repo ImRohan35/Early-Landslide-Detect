@@ -79,8 +79,17 @@ export default function InteractiveMapPage({
   const [lastUpdated, setLastUpdated] = useState(() => formatISTTime());
   const [currentTimestamp, setCurrentTimestamp] = useState(() => `${formatISTDate()}, ${formatISTTime()}`);
   const [geoLoading, setGeoLoading] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [geoToast, setGeoToast] = useState(null);
   const [isFullscreenMap, setIsFullscreenMap] = useState(false);
   const [mapOnlyMode, setMapOnlyMode] = useState(false);
+
+  const showGeoToast = useCallback((message, type = 'info') => {
+    setGeoToast({ message, type });
+    setTimeout(() => {
+      setGeoToast((current) => (current?.message === message ? null : current));
+    }, 6000);
+  }, []);
 
   // Sync prop changes for selectedLocation
   useEffect(() => {
@@ -128,32 +137,78 @@ export default function InteractiveMapPage({
     if (onLocationSelect) onLocationSelect(loc);
   };
 
-  // Browser Geolocation
+  // Browser & Network Geolocation with IP Fallback
   const handleUseCurrentLocation = () => {
+    setGeoLoading(true);
+    showGeoToast('Acquiring location coordinates...', 'info');
+
+    const processCoords = (lat, lon, accuracy, source = 'GPS', cityName = '') => {
+      let closest = riskLocations[0];
+      let minDist = Infinity;
+      riskLocations.forEach((l) => {
+        const d = Math.hypot(l.latitude - lat, l.longitude - lon);
+        if (d < minDist) {
+          minDist = d;
+          closest = l;
+        }
+      });
+
+      const coordsObj = {
+        latitude: lat,
+        longitude: lon,
+        accuracy,
+        source,
+        city: cityName || closest.district || closest.state,
+      };
+
+      setUserLocation(coordsObj);
+      handleSelectLocation(closest);
+      loadLiveWeather(closest);
+      setGeoLoading(false);
+
+      const inNER = lat >= 21.5 && lat <= 29.5 && lon >= 88.0 && lon <= 97.5;
+      showGeoToast(
+        inNER
+          ? `📍 Located via ${source} at ${lat.toFixed(4)}°N, ${lon.toFixed(4)}°E. Nearest station: ${closest.name || closest.locationName} (${closest.state}).`
+          : `📍 Located via ${source}: ${cityName || ''} (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E). Mapped to nearest NER station: ${closest.name || closest.locationName}.`,
+        inNER ? 'success' : 'info'
+      );
+    };
+
+    const fallbackToIP = async () => {
+      try {
+        showGeoToast('Resolving approximate network location...', 'info');
+        const res = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(6000) });
+        const data = await res.json();
+        if (data && data.latitude && data.longitude) {
+          processCoords(
+            Number(data.latitude),
+            Number(data.longitude),
+            5000,
+            'Network IP',
+            data.city || data.region || 'India'
+          );
+          return;
+        }
+      } catch {}
+      setGeoLoading(false);
+      showGeoToast('⚠️ Location permission was denied or device GPS is unavailable.', 'warning');
+    };
+
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      fallbackToIP();
       return;
     }
-    setGeoLoading(true);
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setGeoLoading(false);
-        const { latitude, longitude } = pos.coords;
-        let closest = riskLocations[0];
-        let minDist = Infinity;
-        riskLocations.forEach((l) => {
-          const d = Math.hypot(l.latitude - latitude, l.longitude - longitude);
-          if (d < minDist) {
-            minDist = d;
-            closest = l;
-          }
-        });
-        handleSelectLocation(closest);
+        const { latitude, longitude, accuracy } = pos.coords;
+        processCoords(latitude, longitude, Math.round(accuracy || 50), 'GPS');
       },
       () => {
-        setGeoLoading(false);
-        alert('Could not retrieve GPS coordinates.');
-      }
+        fallbackToIP();
+      },
+      { timeout: 8000, enableHighAccuracy: true, maximumAge: 60000 }
     );
   };
 
@@ -217,22 +272,6 @@ export default function InteractiveMapPage({
               >
                 Interactive <span style={{ color: '#e05626' }}>Risk Map</span>
               </h1>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: 20,
-                  padding: '4px 12px',
-                  fontSize: '0.76rem',
-                  color: '#047857',
-                  fontWeight: 700,
-                }}
-              >
-                🎯 ML Model Accuracy: 95.0% · Random Forest Pipeline
-              </span>
             </div>
             <p style={{ margin: 0, fontSize: '0.86rem', color: '#64748b' }}>
               Explore landslide risk across the North Eastern Region using real-time and historical geospatial data.
@@ -366,21 +405,6 @@ export default function InteractiveMapPage({
                 gap: 12,
               }}
             >
-              <span
-                style={{
-                  background: 'rgba(7, 24, 17, 0.92)',
-                  color: '#86efac',
-                  border: '1px solid rgba(52, 211, 153, 0.4)',
-                  padding: '8px 16px',
-                  borderRadius: 12,
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-                }}
-              >
-                🎯 ML Prediction Accuracy: 95.0% · Full-Screen Surveillance
-              </span>
               <button
                 type="button"
                 onClick={() => setIsFullscreenMap(false)}
@@ -413,6 +437,9 @@ export default function InteractiveMapPage({
                 mapType={mapLayer}
                 selectedState={selectedState}
                 onInspectDetails={() => onNavigate && onNavigate('Analysis')}
+                userLocation={userLocation}
+                onUserLocationChange={setUserLocation}
+                onToast={showGeoToast}
               />
             </div>
           </div>
@@ -449,6 +476,9 @@ export default function InteractiveMapPage({
               mapType={mapLayer}
               selectedState={selectedState}
               onInspectDetails={() => onNavigate && onNavigate('Analysis')}
+              userLocation={userLocation}
+              onUserLocationChange={setUserLocation}
+              onToast={showGeoToast}
             />
           </div>
 
@@ -961,6 +991,59 @@ export default function InteractiveMapPage({
           </div>
         </div>
       </div>
+
+      {/* Floating Geolocation Toast Notification */}
+      {geoToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            zIndex: 9999,
+            background:
+              geoToast.type === 'error'
+                ? '#dc2626'
+                : geoToast.type === 'warning'
+                ? '#d97706'
+                : geoToast.type === 'success'
+                ? '#059669'
+                : '#0f172a',
+            color: '#ffffff',
+            padding: '12px 20px',
+            borderRadius: 14,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            fontSize: '0.86rem',
+            fontWeight: 600,
+            maxWidth: 460,
+            lineHeight: 1.4,
+            animation: 'fadeIn 0.25s ease',
+          }}
+        >
+          <span style={{ flex: 1 }}>{geoToast.message}</span>
+          <button
+            onClick={() => setGeoToast(null)}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              color: '#ffffff',
+              borderRadius: '50%',
+              width: 22,
+              height: 22,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: 12,
+              fontWeight: 800,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }

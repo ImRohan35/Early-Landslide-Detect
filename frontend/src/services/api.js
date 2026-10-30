@@ -227,8 +227,8 @@ export async function predictRiskApi(payload) {
   const score = Math.min(98, Math.max(5, Math.round(rf + slope + sm + hist + ndvi)));
   let level = 'LOW';
   if (score > 75) level = 'CRITICAL';
-  else if (score > 55) level = 'HIGH';
-  else if (score > 30) level = 'MODERATE';
+  else if (score > 50) level = 'HIGH';
+  else if (score > 25) level = 'MODERATE';
 
   let rec = 'Current estimated risk is low. Continue routine monitoring.';
   if (level === 'CRITICAL') rec = 'Follow local authorities and disaster-management advisories and avoid high-risk areas.';

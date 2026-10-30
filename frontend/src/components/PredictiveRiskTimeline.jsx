@@ -134,41 +134,41 @@ export default function PredictiveRiskTimeline({ selectedLocation, theme = 'ligh
   };
 
   const getSimpleRiskLabel = (score) => {
-    if (score <= 30) return { title: 'SAFE', text: 'Kam Khatra', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' };
-    if (score <= 50) return { title: 'NORMAL', text: 'Samanya', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' };
-    if (score <= 75) return { title: 'CAUTION', text: 'Savdhaan', color: '#ea580c', bg: 'rgba(234, 88, 12, 0.15)' };
-    return { title: 'HIGH RISK', text: 'Khatra', color: '#dc2626', bg: 'rgba(220, 38, 38, 0.15)' };
+    if (score <= 30) return { title: 'SAFE', text: 'Low Risk', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' };
+    if (score <= 50) return { title: 'NORMAL', text: 'Moderate', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' };
+    if (score <= 75) return { title: 'CAUTION', text: 'Elevated Risk', color: '#ea580c', bg: 'rgba(234, 88, 12, 0.15)' };
+    return { title: 'HIGH RISK', text: 'Critical Risk', color: '#dc2626', bg: 'rgba(220, 38, 38, 0.15)' };
   };
 
   const getRainDescription = (rain) => {
-    if (rain === 0) return { text: 'No Rain (Dry)', hindi: 'Barish Nahi', icon: Sun };
-    if (rain < 2.5) return { text: 'Light Drizzle', hindi: 'Halki Boondein', icon: CloudRain };
-    if (rain < 15) return { text: 'Moderate Rain', hindi: 'Halki Barish', icon: CloudRain };
-    return { text: 'Heavy Rain', hindi: 'Tez Barish', icon: CloudRain };
+    if (rain === 0) return { text: 'No Rain (Dry)', icon: Sun };
+    if (rain < 2.5) return { text: 'Light Drizzle', icon: CloudRain };
+    if (rain < 15) return { text: 'Moderate Rain', icon: CloudRain };
+    return { text: 'Heavy Rain', icon: CloudRain };
   };
 
   const getHumanAdvice = (score, rain) => {
     if (score <= 30) {
       return {
         verdict: '🟢 Safe for Travel & Work',
-        details: 'Mausam aur pahaad bilkul shaant hain. Roads safe hain aur landslide ka koi khatra nahi hai.',
+        details: 'Weather and mountain terrain are stable. Roads are clear with no significant landslide hazard expected.',
       };
     }
     if (score <= 50) {
       return {
         verdict: '🟡 Moderate Conditions',
-        details: 'Halki barish se thodi fisal ho sakti hai. Normal speed mein travel karein aur savdhaani rakhein.',
+        details: 'Light precipitation may cause minor slippery surfaces. Maintain normal driving caution along hill corridors.',
       };
     }
     if (score <= 75) {
       return {
         verdict: '🟠 Caution: Hill Slopes Vulnerable',
-        details: 'Barish ki wajah se mitti gili hai. Pahaadi dhalano aur highway par tez gaadi na chalayein.',
+        details: 'Elevated precipitation increases ground saturation. Exercise caution along steep highway cuts and bends.',
       };
     }
     return {
       verdict: '🔴 Danger: Avoid Hill Travel',
-      details: 'Landslide ka khatra kaafi high hai. Unsafe pahaadi raston par jane se bachein aur official helpline dekhein.',
+      details: 'High slope instability hazard detected. Avoid unnecessary hill transit and monitor official disaster management advisories.',
     };
   };
 
@@ -249,7 +249,7 @@ export default function PredictiveRiskTimeline({ selectedLocation, theme = 'ligh
               </span>
             </div>
             <p style={{ color: isDark ? '#94a3b8' : '#64748b', fontSize: '0.82rem', margin: '3px 0 0' }}>
-              Agle 7 dino ka barish aur landslide khatra aam bhasha mein &middot;{' '}
+              7-Day precipitation & landslide vulnerability forecast &middot;{' '}
               <b>{loc.name || loc.locationName || 'Monitoring Station'}</b> ({loc.state || 'Meghalaya'})
             </p>
           </div>
@@ -361,15 +361,15 @@ export default function PredictiveRiskTimeline({ selectedLocation, theme = 'ligh
           <ShieldCheck size={22} color="#10b981" />
           <div>
             <div style={{ fontWeight: 800, fontSize: '0.92rem', color: isDark ? '#ffffff' : '#065f46' }}>
-              Weekly Safety Overview (Hafta Bhar Ka Haal):
+              Weekly Safety Overview:
             </div>
             <div style={{ fontSize: '0.82rem', color: isDark ? '#a7f3d0' : '#047857', marginTop: 2 }}>
               {safeDaysCount >= 5
-                ? `Agle 7 dino mein se ${safeDaysCount} din bilkul safe hain. Koi bada landslide khatra nahi hai.`
-                : 'Agle kuch dino mein barish ke chalte pahaadi dhalano par savdhaani zaroori hai.'}
+                ? `${safeDaysCount} out of the next 7 days show low landslide vulnerability.`
+                : 'Caution advised on vulnerable hill slopes over the next several days due to anticipated precipitation.'}
               {maxRainDay && maxRainDay.precipitation > 0
-                ? ` Sabse zyada barish ${maxRainDay.dayName} (${maxRainDay.precipitation} mm) ko expected hai.`
-                : ' Hafta bhar mausam dry aur safe rahega.'}
+                ? ` Peak rainfall expected on ${maxRainDay.dayName} (${maxRainDay.precipitation} mm).`
+                : ' Weather is projected to remain predominantly dry and stable.'}
             </div>
           </div>
         </div>
@@ -500,7 +500,7 @@ export default function PredictiveRiskTimeline({ selectedLocation, theme = 'ligh
                   </span>
                 </div>
                 <span style={{ fontSize: '0.68rem', color: isDark ? '#94a3b8' : '#64748b', marginBottom: 8 }}>
-                  {rainInfo.hindi}
+                  {rainInfo.text}
                 </span>
 
                 {/* Temperature High / Low */}
@@ -716,7 +716,7 @@ export default function PredictiveRiskTimeline({ selectedLocation, theme = 'ligh
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <CloudRain size={16} color="#38bdf8" />
               <span>
-                Barish: <b>{activePoint.precipitation} mm</b>
+                Precipitation: <b>{activePoint.precipitation} mm</b>
               </span>
             </div>
 
@@ -724,7 +724,7 @@ export default function PredictiveRiskTimeline({ selectedLocation, theme = 'ligh
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Thermometer size={16} color="#f59e0b" />
                 <span>
-                  Tapman: <b>{activePoint.maxTemp}°C</b> {activePoint.minTemp ? `(${activePoint.minTemp}°)` : ''}
+                  Temperature: <b>{activePoint.maxTemp}°C</b> {activePoint.minTemp ? `(${activePoint.minTemp}°)` : ''}
                 </span>
               </div>
             )}
@@ -732,7 +732,7 @@ export default function PredictiveRiskTimeline({ selectedLocation, theme = 'ligh
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Info size={16} color="#10b981" />
               <span>
-                Mausam: <b>{activePoint.condition || 'Clear Sky'}</b>
+                Weather: <b>{activePoint.condition || 'Clear Sky'}</b>
               </span>
             </div>
           </div>

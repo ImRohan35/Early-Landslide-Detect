@@ -466,22 +466,6 @@ export default function HistoricalAnalysisView({
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: 20,
-                  padding: '4px 12px',
-                  fontSize: '0.76rem',
-                  color: '#047857',
-                  fontWeight: 700,
-                }}
-              >
-                🎯 ML Model Accuracy: 95.0% · Random Forest Pipeline
-              </span>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
                   background: theme === 'dark' ? '#143828' : '#e0e7ff',
                   border: '1px solid #c7d2fe',
                   borderRadius: 20,

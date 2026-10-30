@@ -113,7 +113,79 @@ Early-Landslide-Detect/
 
 ---
 
-## 🚀 How to Run the Project (Step-by-Step Guide)
+## 💻 How to Run in VS Code (Visual Studio Code)
+
+Follow these simple steps to run both the **Backend** and **Frontend** inside VS Code:
+
+### 1. Open the Project in VS Code
+1. Launch **Visual Studio Code**.
+2. Click **File ➔ Open Folder...** (or press `Ctrl + K, Ctrl + O`).
+3. Select the extracted project folder:
+   ```
+   landslideguard-ai
+   ```
+
+---
+
+### 2. Start the Backend Server (Terminal 1)
+1. Open a new terminal in VS Code: **Terminal ➔ New Terminal** (or press `` Ctrl + ` ``).
+2. Run the following commands:
+
+```powershell
+# Navigate to backend directory
+cd backend
+
+# (Optional: If setting up virtual environment for the first time)
+# python -m venv .venv
+# pip install -r requirements.txt
+
+# Start FastAPI backend server with reload enabled
+.\.venv\Scripts\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+```
+
+> *(If using Windows CMD instead of PowerShell, run: `cd backend && .venv\Scripts\activate.bat && uvicorn app:app --host 127.0.0.1 --port 8000 --reload`)*
+
+✅ **Backend will run at:** **`http://127.0.0.1:8000`**  
+📖 **API Swagger Docs:** **`http://127.0.0.1:8000/docs`**
+
+---
+
+### 3. Start the Frontend Server (Terminal 2)
+1. In the VS Code terminal panel, click the **`+`** (Plus icon) on the top-right of the terminal to open a **Second Terminal**.
+2. Run the following commands:
+
+```powershell
+# Navigate to frontend directory
+cd frontend
+
+# Install dependencies (only required the first time)
+npm install
+
+# Start Vite React development server
+npm run dev
+```
+
+✅ **Frontend will run at:** **`http://localhost:5173`** (or `http://127.0.0.1:5173`)
+
+---
+
+### 4. Open in Your Browser
+Open your web browser (Chrome, Edge, Brave, etc.) and go to:
+👉 **`http://localhost:5173`**
+
+---
+
+### ⚡ 1-Click Alternative Launcher (`run.bat`)
+If you prefer not to type commands in two separate terminals, you can use the included 1-click batch launcher:
+- In the VS Code File Explorer (or Windows Explorer), simply double-click **`run.bat`**, or run:
+  ```powershell
+  .\run.bat
+  ```
+- This automatically opens two separate command windows for **Backend** and **Frontend** simultaneously!
+
+---
+
+## 🚀 Detailed Manual Setup Guide
 
 ### Prerequisites
 
@@ -124,7 +196,7 @@ Before starting, ensure you have the following installed on your computer:
 
 ---
 
-### Step 1: Clone the Repository
+### Step 1: Clone or Open the Repository
 
 Open your terminal (PowerShell, Command Prompt, or Bash) and run:
 
@@ -216,6 +288,7 @@ Open a **Second Terminal Window** (keep the backend terminal running):
 
 ---
 
+  
 ## 🔐 How to Log In
 
 The system includes a universal testing authentication pipeline:
